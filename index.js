@@ -13,12 +13,15 @@ export default async (opts) => {
     },
     watch: async (queueName, watchFn) => {
       await channel.assertQueue(queueName)
-      return channel.consume(queueName, (msg) => {
+      return channel.consume(queueName, async (msg) => {
         if(msg !== null){
           console.log(msg.content.toString())
           try{
-            watchFn(JSON.parse(msg.content.toString()))
+            let result = await watchFn(JSON.parse(msg.content.toString()))
+            if(result)channel.ack(msg)
+            if(!result)channel.nack(msg)
           }catch(e){
+            channel.nack(msg)
             console.log(e, msg.content.toString())
           }
         }
