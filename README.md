@@ -15,7 +15,7 @@ MQ.getQueuePressure('queue').then(pressure => {
     pressure.consumerCount
 })
 
-MQ.queue('queue', {job_id: id, data: {}})
+let pressure = await MQ.queue('queue', {job_id: id, data: {}})
 
 MQ.watch('queue', (job_result, queue_pressure) => {
 
