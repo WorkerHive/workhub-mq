@@ -7,9 +7,14 @@ export default async (opts) => {
   let channel = await conn.createChannel()
 
   return {
+    getQueuePressure: async (queueName) => {
+      let queue = await channel.assertQueue(queueName)
+      return queue
+    },
     queue: async (queueName, job) => {
-      await channel.assertQueue(queueName)
-      return channel.sendToQueue(queueName, Buffer.from(JSON.stringify(job)))
+      let queue = await channel.assertQueue(queueName)
+      await channel.sendToQueue(queueName, Buffer.from(JSON.stringify(job)))
+      return queue
     },
     watch: async (queueName, watchFn) => {
       await channel.assertQueue(queueName)
@@ -17,7 +22,8 @@ export default async (opts) => {
         if(msg !== null){
           console.log(msg.content.toString())
           try{
-            let result = await watchFn(JSON.parse(msg.content.toString()))
+            let queue = await channel.assertQueue(queueName)
+            let result = await watchFn(JSON.parse(msg.content.toString()), queue)
             if(result)channel.ack(msg)
             if(!result)channel.nack(msg)
           }catch(e){
