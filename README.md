@@ -17,7 +17,9 @@ MQ.getQueuePressure('queue').then(pressure => {
 
 let pressure = await MQ.queue('queue', {job_id: id, data: {}})
 
-MQ.watch('queue', (job_result, queue_pressure) => {
-
+MQ.watch('queue', async (job_result) => {
+    return true/false for process completion
+}, (err, pressure) => {
+    //Finised processing item
 })
 ```

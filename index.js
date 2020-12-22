@@ -16,7 +16,7 @@ export default async (opts) => {
       await channel.sendToQueue(queueName, Buffer.from(JSON.stringify(job)))
       return queue
     },
-    watch: async (queueName, watchFn) => {
+    watch: async (queueName, watchFn, proccessedFn) => {
       await channel.assertQueue(queueName)
       return channel.consume(queueName, async (msg) => {
         if(msg !== null){
@@ -24,10 +24,17 @@ export default async (opts) => {
           try{
             let queue = await channel.assertQueue(queueName)
             let result = await watchFn(JSON.parse(msg.content.toString()), queue)
-            if(result)channel.ack(msg)
-            if(!result)channel.nack(msg)
+            if(result){ 
+              await channel.ack(msg)
+              proccessedFn(null, queue)
+            }
+            if(!result){
+              await channel.nack(msg)
+              proccessedFn("Wasn't accepted")
+            }
           }catch(e){
-            channel.nack(msg)
+            await channel.nack(msg)
+            proccessedFn(msg.content.toString())
             console.log(e, msg.content.toString())
           }
         }
