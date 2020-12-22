@@ -1,12 +1,15 @@
 import amqplib from 'amqplib';
 
 export default async (opts) => {
-  let MQ_URL = opts.host;
-  
-  let conn = await amqplib.connect(MQ_URL)
+  let url = `amqp://${opts.user}:${opts.pass}@${opts.host}`
+  let conn = await amqplib.connect(url)
   let channel = await conn.createChannel()
 
   return {
+    host: opts.host,
+    user: opts.user,
+    pass: opts.pass,
+    url: url,
     getQueuePressure: async (queueName) => {
       let queue = await channel.assertQueue(queueName)
       return queue
