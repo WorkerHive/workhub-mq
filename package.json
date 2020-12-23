@@ -1,5 +1,5 @@
 {
-  "name": "workhub-mq",
+  "name": "@workerhive/mq",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
